@@ -39,21 +39,20 @@ async def get_single_user(user_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND, detail=f'{user_id} not found')
     return get_one_user
 
+# dont need to update user as of now will change later when other fields are added.
+# @router.put('/{user_id}',  response_model=schemas.User)
+# async def update_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db)):
+#     get_user = db.query(models.User).filter(models.User.UId == user_id)
 
-@router.put('/{user_id}', response_model=schemas.User)
-async def update_user(user_id: int, user: schemas.UserCreate, db: Session = Depends(get_db)):
-    get_user = db.query(models.User).filter(models.User.UId == user_id)
+#     get_one_user = get_user.first()
 
-    get_one_user = get_user.first()
-
-    if get_one_user == None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail=f'{user_id} not found')
-
-    get_user.update(**user.dict(), synchronize_session=False)
-    db.commit()
-
-    return get_user.first()
+#     if get_one_user == None:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND, detail=f'{user_id} not found')
+#     # user.password = utils.hashpassword(user.password)
+#     get_user.update(user.dict(), synchronize_session=False)
+#     db.commit()
+#     return get_user.first()
 
 
 @router.delete('/{user_id}', status_code=status.HTTP_204_NO_CONTENT)
