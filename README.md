@@ -16,5 +16,4 @@ Before we get started you should download and install all **requirements** neede
 - *--reload* is only used on development so we can see changes on save
 - This project uses MS SQL SERVER. So, please install that or change DATABASE_URL
 
-Buy Me A :beer:
-[!["Buy Me A Coffee"]
+:beer:
