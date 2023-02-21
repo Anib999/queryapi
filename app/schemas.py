@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from typing import Optional
 
 
 class CompanyBase(BaseModel):
@@ -18,12 +19,15 @@ class Company(CompanyBase):
     class Config:
         orm_mode = True
 
+
 class UserBase(BaseModel):
     email: EmailStr
     password: str
 
+
 class UserCreate(UserBase):
     pass
+
 
 class User(BaseModel):
     UId: int
@@ -33,6 +37,16 @@ class User(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
+
+class Token(BaseModel):
+    username: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    UId: Optional[str] = None
