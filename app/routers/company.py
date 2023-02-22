@@ -1,5 +1,5 @@
 from fastapi import Response, status, HTTPException, Depends, APIRouter
-from .. import models, schemas
+from .. import models, schemas, oauth2
 from ..database import get_db
 from sqlalchemy.orm import Session
 
@@ -19,7 +19,8 @@ async def get_company(db: Session = Depends(get_db)):
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED, response_model=schemas.Company)
-async def create_company(company: schemas.CompanyCreate, db: Session = Depends(get_db)):
+async def create_company(company: schemas.CompanyCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
+    print(current_user)
     new_company = models.Company(**company.dict())
     db.add(new_company)
     db.commit()
@@ -28,7 +29,7 @@ async def create_company(company: schemas.CompanyCreate, db: Session = Depends(g
 
 
 @router.get('/{company_id}', response_model=schemas.Company)
-async def get_company_by_id(company_id: int, db: Session = Depends(get_db)):
+async def get_company_by_id(company_id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     get_single_company = db.query(models.Company).filter(
         models.Company.CId == company_id).first()
     if not get_single_company:
@@ -38,7 +39,7 @@ async def get_company_by_id(company_id: int, db: Session = Depends(get_db)):
 
 
 @router.delete('/{company_id}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_company(company_id: int, db: Session = Depends(get_db)):
+async def delete_company(company_id: int, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     get_company = db.query(models.Company).filter(
         models.Company.CId == company_id)
     if get_company.first() == None:
@@ -51,7 +52,7 @@ async def delete_company(company_id: int, db: Session = Depends(get_db)):
 
 
 @router.put('/{company_id}', response_model=schemas.Company)
-async def update_company(company_id: int, company: schemas.CompanyCreate, db: Session = Depends(get_db)):
+async def update_company(company_id: int, company: schemas.CompanyCreate, db: Session = Depends(get_db), current_user: int = Depends(oauth2.get_current_user)):
     get_company = db.query(models.Company).filter(
         models.Company.CId == company_id)
 

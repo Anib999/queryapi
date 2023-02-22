@@ -1,9 +1,10 @@
 from jose import jwt, JWTError
 from .config import settings
 from datetime import datetime, timedelta
-from . import schemas
+from . import schemas, database, models
 from fastapi import Depends, status, HTTPException
 from fastapi.security import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
 
@@ -14,7 +15,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(settings.access_token_expire_minutes)
 def create_access_token(data: dict):
     to_encode = data.copy()
 
-    expire = datetime.now() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
 
     to_encode.update({'exp': expire})
 
@@ -24,7 +25,7 @@ def create_access_token(data: dict):
 
 def verify_access_token(token: str, credentials_exception):
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithm=ALGORITHM)
+        payload = jwt.decode(token, SECRET_KEY, ALGORITHM)
         UId: str = payload.get('user_id')
 
         if UId is None:
@@ -32,7 +33,14 @@ def verify_access_token(token: str, credentials_exception):
         token_data = schemas.TokenData(UId=UId)
     except JWTError:
         raise credentials_exception
+    
+    return token_data
 
-def get_current_user(token:str = Depends(oauth2_scheme)):
+def get_current_user(token:str = Depends(oauth2_scheme), db: Session = Depends(database.get_db)):
     credentials_exception = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f'Could not verify credentails', headers={'WWW-Authenticate': 'Bearer'})
-    return verify_access_token(token, credentials_exception)
+
+    token = verify_access_token(token, credentials_exception)
+
+    user = db.query(models.User).filter(models.User.UId == token.UId).first()
+
+    return user

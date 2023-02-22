@@ -8,17 +8,17 @@ router = APIRouter(
 )
 
 
-@router.post('/login')
+@router.post('/login', response_model=schemas.Token)
 async def login(user_credentails: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(
         models.User.email == user_credentails.username).first()
 
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f'Email / Password is incorrect')
 
     if not utils.verifyhashpassword(user_credentails.password, user.password):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
                             detail=f'Email / Password is incorrect')
 
     payload_data = {'user_id': user.UId}
