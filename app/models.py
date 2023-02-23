@@ -1,5 +1,5 @@
 from .database import Base
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.sql.expression import text
 
@@ -36,6 +36,9 @@ class Query(Base):
     QId = Column(Integer, primary_key=True, nullable=False)
     QueryName = Column(String(300), nullable=False)
     QueryDescription = Column(String, nullable=True)
+    QueryIsUsed = Column(Boolean, default=True)
+    company_id = Column(Integer, ForeignKey('CompanyTbl.CId', ondelete='CASCADE'), nullable=False)
+    folder_id = Column(Integer, ForeignKey('FolderTbl.FId', ondelete='CASCADE'), nullable=False)
     created_date = Column(DateTime(timezone=True),
                           nullable=False, server_default=text('getdate()'))
 
@@ -83,7 +86,8 @@ class Comments(Base):
 
     CoId = Column(Integer, primary_key=True, nullable=False)
     CommentDetail = Column(String, nullable=False)
-    # user_id =
+    query_id = Column(Integer, ForeignKey('QueryTbl.QId', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('UserTbl.UId', ondelete='CASCADE'), nullable=False)
     created_date = Column(DateTime(timezone=True),
                           nullable=False, server_default=text('getdate()'))
 

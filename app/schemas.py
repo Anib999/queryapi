@@ -50,3 +50,33 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     UId: Optional[str] = None
+
+class CommentBase(BaseModel):
+    CommentDetail: str
+    query_id: int
+    user_id: int
+
+
+class CommentCreate(CommentBase):
+    pass
+
+class Comment(CommentBase):
+
+    class Config:
+        orm_mode = True
+
+class FolderBase(BaseModel):
+    FolderName: str
+
+class ShowFolder(FolderBase):
+    FId: int
+
+    class Config:
+        orm_mode = True
+
+class FolderCreate(FolderBase):
+    pass
+
+class Folder(FolderBase):
+    class Config:
+        orm_mode = True
