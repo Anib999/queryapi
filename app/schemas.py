@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, conint
 from datetime import datetime
 from typing import Optional
 
@@ -51,22 +51,10 @@ class Token(BaseModel):
 class TokenData(BaseModel):
     UId: Optional[str] = None
 
-class CommentBase(BaseModel):
-    CommentDetail: str
-    query_id: int
-    user_id: int
-
-
-class CommentCreate(CommentBase):
-    pass
-
-class Comment(CommentBase):
-
-    class Config:
-        orm_mode = True
 
 class FolderBase(BaseModel):
     FolderName: str
+
 
 class ShowFolder(FolderBase):
     FId: int
@@ -74,9 +62,71 @@ class ShowFolder(FolderBase):
     class Config:
         orm_mode = True
 
+
 class FolderCreate(FolderBase):
     pass
 
+
 class Folder(FolderBase):
+    class Config:
+        orm_mode = True
+
+
+class QueryBase(BaseModel):
+    QueryName: str
+
+
+class QueryCreate(QueryBase):
+    pass
+
+
+class QueryUpdate(QueryBase):
+    QueryDescription: str
+    company_id: int
+    folder_id: int
+
+
+class Query(QueryBase):
+    QId: int
+    QueryDescription: str
+
+    class Config:
+        orm_mode = True
+
+
+class CommentBase(BaseModel):
+    CommentDetail: str
+    query_id: int
+    # user_id: int
+
+
+class CommentCreate(CommentBase):
+    pass
+
+
+class Comment(CommentBase):
+    user_id: int
+    user: User
+    # query: QueryBase
+
+    class Config:
+        orm_mode = True
+
+class LikeBase(BaseModel):
+    comment_id: int
+    comment_dir: conint(ge=0, le=1)
+
+class LikeCreate(LikeBase):
+    pass
+
+class Like(LikeBase):
+
+    class Config:
+        orm_mode = True
+
+class CommentLike(BaseModel):
+    Comment: Comment
+    LikeCount: int
+
     class Config:
         orm_mode = True

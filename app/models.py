@@ -2,7 +2,7 @@ from .database import Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Boolean
 from sqlalchemy.sql.sqltypes import DateTime
 from sqlalchemy.sql.expression import text
-
+from sqlalchemy.orm import relationship
 
 '''Company and Folders'''
 
@@ -37,8 +37,10 @@ class Query(Base):
     QueryName = Column(String(300), nullable=False)
     QueryDescription = Column(String, nullable=True)
     QueryIsUsed = Column(Boolean, default=True)
-    company_id = Column(Integer, ForeignKey('CompanyTbl.CId', ondelete='CASCADE'), nullable=False)
-    folder_id = Column(Integer, ForeignKey('FolderTbl.FId', ondelete='CASCADE'), nullable=False)
+    company_id = Column(Integer, ForeignKey(
+        'CompanyTbl.CId', ondelete='CASCADE'), nullable=False)
+    folder_id = Column(Integer, ForeignKey(
+        'FolderTbl.FId', ondelete='CASCADE'), nullable=False)
     created_date = Column(DateTime(timezone=True),
                           nullable=False, server_default=text('getdate()'))
 
@@ -86,10 +88,14 @@ class Comments(Base):
 
     CoId = Column(Integer, primary_key=True, nullable=False)
     CommentDetail = Column(String, nullable=False)
-    query_id = Column(Integer, ForeignKey('QueryTbl.QId', ondelete='CASCADE'), nullable=False)
-    user_id = Column(Integer, ForeignKey('UserTbl.UId', ondelete='CASCADE'), nullable=False)
+    query_id = Column(Integer, ForeignKey(
+        'QueryTbl.QId', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey(
+        'UserTbl.UId', ondelete='CASCADE'), nullable=False)
     created_date = Column(DateTime(timezone=True),
                           nullable=False, server_default=text('getdate()'))
+
+    user = relationship('User')
 
 
 class Votes(Base):
@@ -98,3 +104,13 @@ class Votes(Base):
     VId = Column(Integer, primary_key=True, nullable=False)
     created_date = Column(DateTime(timezone=True),
                           nullable=False, server_default=text('getdate()'))
+
+
+class Likes(Base):
+    __tablename__ = 'LikeTbl'
+
+    # user_id foreign key ondelete is creating a repeated constraints error
+    user_id = Column(Integer, ForeignKey(
+        'UserTbl.UId', ondelete='NO ACTION'), primary_key=True)
+    comment_id = Column(Integer, ForeignKey(
+        'CommentsTbl.CoId', ondelete='CASCADE'), primary_key=True)
