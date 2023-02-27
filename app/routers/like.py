@@ -1,6 +1,6 @@
 from fastapi import HTTPException, status, APIRouter, Depends
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 from ..database import get_db
 from .. import schemas, models, oauth2
 
@@ -50,7 +50,16 @@ async def get_all_likes(db: Session = Depends(get_db)):
 
 @router.get('/likecount')
 async def get_like_count(db: Session = Depends(get_db)):
+    # new_count = db.query(models.Comments).with_entities(models.Comments.CoId, func.count(models.Likes.comment_id).label('LikeCount')).join(
+    #     models.Likes, models.Comments.CoId == models.Likes.comment_id, isouter=True
+    # ).group_by(models.Comments.CoId).all()
+    # new_count = db.query(models.Comments).options(load_only(models.Comments.CoId, func.count(models.Likes.comment_id))).join(
+    #     models.Likes, models.Comments.CoId == models.Likes.comment_id, isouter=True
+    # ).group_by(models.Comments.CoId)
+    # print(new_count)
+    # return new_count
+    # 
     get_count = db.query(models.Comments, func.count(models.Likes.comment_id).label('LikeCount')).join(
         models.Likes, models.Comments.CoId == models.Likes.comment_id, isouter=True).group_by(models.Comments.CoId)
-    print(get_count)
+    print(get_count.all())
     return get_count.all()
